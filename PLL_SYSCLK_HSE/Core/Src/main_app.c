@@ -17,7 +17,7 @@
 /* Private function prototypes -----------------------------------------------*/
 void UART2_Init(void);
 void Error_handler(void);
-void SystemClock_Config(uint8_t clock_freq);
+void SystemClock_Config_HSE(uint8_t clock_freq);
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
@@ -28,9 +28,9 @@ int main(void)
 	char msg[100];
 	HAL_Init();
 
-	SystemClock_Config(SYS_CLOCK_FREQ_50_MHZ); // run HCLK at 50 MHz
-	//SystemClock_Config(SYS_CLOCK_FREQ_84_MHZ); // run HCLK at 84 MHz
-	//SystemClock_Config(SYS_CLOCK_FREQ_120_MHZ); // run HCLK at 120 MHz
+	SystemClock_Config_HSE(SYS_CLOCK_FREQ_50_MHZ); // run HCLK at 50 MHz
+	//SystemClock_Config_HSE(SYS_CLOCK_FREQ_84_MHZ); // run HCLK at 84 MHz
+	//SystemClock_Config_HSE(SYS_CLOCK_FREQ_120_MHZ); // run HCLK at 120 MHz
 
 	UART2_Init();
 
@@ -56,24 +56,23 @@ int main(void)
 }
 
 
-void SystemClock_Config(uint8_t clock_freq)
+void SystemClock_Config_HSE(uint8_t clock_freq)
 {
 	RCC_OscInitTypeDef osc_init;
 	RCC_ClkInitTypeDef clk_init;
 
 	uint32_t FLatency = 0;
 
-	osc_init.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-	osc_init.HSIState = RCC_HSI_ON;
-	osc_init.HSICalibrationValue = 16;
+	osc_init.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+	osc_init.HSEState = RCC_HSE_ON;
 	osc_init.PLL.PLLState = RCC_PLL_ON;
-	osc_init.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+	osc_init.PLL.PLLSource = RCC_PLLSOURCE_HSE;
 
 	switch(clock_freq)
 	{
 		case SYS_CLOCK_FREQ_50_MHZ:
 		{
-			osc_init.PLL.PLLM = 16;
+			osc_init.PLL.PLLM = 8;
 			osc_init.PLL.PLLN = 100;
 			osc_init.PLL.PLLP = 2;
 			osc_init.PLL.PLLQ = 2;
@@ -90,7 +89,7 @@ void SystemClock_Config(uint8_t clock_freq)
 		}
 		case SYS_CLOCK_FREQ_84_MHZ:
 		{
-			osc_init.PLL.PLLM = 16;
+			osc_init.PLL.PLLM = 8;
 			osc_init.PLL.PLLN = 168;
 			osc_init.PLL.PLLP = 2;
 			osc_init.PLL.PLLQ = 2;
@@ -107,7 +106,7 @@ void SystemClock_Config(uint8_t clock_freq)
 		}
 		case SYS_CLOCK_FREQ_120_MHZ:
 		{
-			osc_init.PLL.PLLM = 16;
+			osc_init.PLL.PLLM = 8;
 			osc_init.PLL.PLLN = 240;
 			osc_init.PLL.PLLP = 2;
 			osc_init.PLL.PLLQ = 2;
@@ -120,6 +119,29 @@ void SystemClock_Config(uint8_t clock_freq)
 			clk_init.APB2CLKDivider = RCC_HCLK_DIV2;
 
 			FLatency = FLASH_ACR_LATENCY_3WS;
+			break;
+		}
+		case SYS_CLOCK_FREQ_168_MHZ: // STM32F407's maximum frequency
+		{
+			// Enable the clock for the power controller
+			__HAL_RCC_PWR_CLK_ENABLE();
+
+			// Set regulator voltage scale as 1 mode
+			__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+			osc_init.PLL.PLLM = 8;
+			osc_init.PLL.PLLN = 336;
+			osc_init.PLL.PLLP = 2;
+			osc_init.PLL.PLLQ = 2;
+
+			clk_init.ClockType = RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | \
+								 RCC_CLOCKTYPE_PCLK1  | RCC_CLOCKTYPE_PCLK2;
+			clk_init.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+			clk_init.AHBCLKDivider = RCC_SYSCLK_DIV1;
+			clk_init.APB1CLKDivider = RCC_HCLK_DIV4;
+			clk_init.APB2CLKDivider = RCC_HCLK_DIV2;
+
+			FLatency = FLASH_ACR_LATENCY_5WS;
 			break;
 		}
 		default:
