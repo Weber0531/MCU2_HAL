@@ -23,8 +23,6 @@ int main(void)
 	HAL_Init();
 	SystemClockConfig();
 	GPIO_Init();
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET); // 設為低電位
-	while(1);
 	TIMER6_Init();
 
 	// Start timer

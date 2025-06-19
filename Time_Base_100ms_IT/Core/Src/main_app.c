@@ -23,24 +23,12 @@ int main(void)
 	HAL_Init();
 	SystemClockConfig();
 	GPIO_Init();
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET); // 設為低電位
-	while(1);
 	TIMER6_Init();
 
-	// Start timer
-	HAL_TIM_Base_Start(&htimer6);
+	// Start timer in Interrupt mode
+	HAL_TIM_Base_Start_IT(&htimer6);
 
-	while(1){
-		// Loop until the update event flag is set
-		while( ! (TIM6->SR & TIM_SR_UIF) );
-
-		/* The required time delay has been elapsed */
-		/* User code can be executed */
-		TIM6->SR = 0;
-		HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
-	}
-
-
+	while(1);
 
 
 	return 0;
@@ -78,6 +66,12 @@ void TIMER6_Init(void)
 	{
 		Error_handler();
 	}
+}
+
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
 }
 
 
