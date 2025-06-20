@@ -22,10 +22,5 @@ void SysTick_Handler(void)
 
 void TIM6_DAC_IRQHandler(void)
 {
-	//HAL_TIM_IRQHandler(&htimer6);
-    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_SET); // start mark
-
-    HAL_TIM_IRQHandler(&htimer6);
-
-    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12, GPIO_PIN_RESET); // end mark
+	HAL_TIM_IRQHandler(&htimer6);
 }
