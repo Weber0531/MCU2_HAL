@@ -8,6 +8,7 @@
 
 #include "main_app.h"
 extern TIM_HandleTypeDef htimer2;
+extern TIM_HandleTypeDef htimer6;
 
 
 /**
@@ -23,4 +24,11 @@ void SysTick_Handler(void)
 void TIM2_IRQHandler(void)
 {
 	HAL_TIM_IRQHandler(&htimer2);
+}
+
+
+void TIM6_DAC_IRQHandler(void)
+{
+	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+	HAL_TIM_IRQHandler(&htimer6);
 }
