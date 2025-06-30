@@ -23,10 +23,48 @@ void TIMER2_Init(void);
 UART_HandleTypeDef huart2;
 TIM_HandleTypeDef htimer2;
 
+uint32_t pulse1_value = 25000; // to produce 500Hz
+uint32_t pulse2_value = 12500; // to produce 1000Hz
+uint32_t pulse3_value = 6250;  // to produce 2000Hz
+uint32_t pulse4_value = 3125;  // to produce 4000Hz
+
+uint32_t ccr_content;
+
 
 int main(void)
 {
 	HAL_Init();
+
+	SystemClockConfig_HSE(SYS_CLOCK_FREQ_50_MHZ);
+
+	GPIO_Init();
+
+	UART2_Init();
+
+	TIMER2_Init();
+
+	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_1) == HAL_OK )
+	{
+		Error_Handler();
+	}
+
+	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_2) == HAL_OK )
+	{
+		Error_Handler();
+	}
+
+	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_3) == HAL_OK )
+	{
+		Error_Handler();
+	}
+
+	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_4) == HAL_OK )
+	{
+		Error_Handler();
+	}
+
+	while(1);
+
 	return 0;
 }
 
@@ -148,26 +186,75 @@ void UART2_Init(void)
 
 void TIMER2_Init(void)
 {
-	TIM_IC_InitTypeDef timer2IC_Config;
+	TIM_OC_InitTypeDef timer2OC_Config;
 
 	htimer2.Instance = TIM2;
 	htimer2.Init.CounterMode = TIM_COUNTERMODE_UP;
 	htimer2.Init.Prescaler = 1;
 	htimer2.Init.Period = 0xFFFFFFFF;
-	if( HAL_TIM_IC_Init(&htimer2) != HAL_OK )
+	if( HAL_TIM_OC_Init(&htimer2) != HAL_OK )
 	{
 		Error_Handler();
 	}
 
-	timer2IC_Config.ICFilter = 0;
-	timer2IC_Config.ICPolarity = TIM_ICPOLARITY_RISING;
-	timer2IC_Config.ICPrescaler = TIM_ICPSC_DIV1;
-	timer2IC_Config.ICSelection = TIM_ICSELECTION_DIRECTTI;
-	if( HAL_TIM_IC_ConfigChannel(&htimer2, timer2IC_Config, TIM_CHANNEL_1) != HAL_OK)
+	timer2OC_Config.OCMode = TIM_OCMODE_TOGGLE;
+	timer2OC_Config.OCPolarity = TIM_OCPOLARITY_HIGH;
+	timer2OC_Config.Pulse = pulse1_value;
+	if(HAL_TIM_OC_ConfigChannel(&htimer2, &timer2OC_Config, TIM_CHANNEL_1) != HAL_OK)
 	{
 		Error_Handler();
 	}
 
+	timer2OC_Config.Pulse = pulse2_value;
+	if(HAL_TIM_OC_ConfigChannel(&htimer2, &timer2OC_Config, TIM_CHANNEL_2) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	timer2OC_Config.Pulse = pulse3_value;
+	if(HAL_TIM_OC_ConfigChannel(&htimer2, &timer2OC_Config, TIM_CHANNEL_3) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	timer2OC_Config.Pulse = pulse4_value;
+	if(HAL_TIM_OC_ConfigChannel(&htimer2, &timer2OC_Config, TIM_CHANNEL_4) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+}
+
+
+void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	/* TIM3_CH1 toggling with frequency = 500 Hz */
+	if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
+	{
+		ccr_content = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
+		__HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_1, ccr_content + pulse1_value);
+	}
+
+	/* TIM3_CH2 toggling with frequency = 1000 Hz */
+	if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
+	{
+		ccr_content = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_2);
+		__HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_2, ccr_content + pulse2_value);
+	}
+
+	/* TIM3_CH3 toggling with frequency = 2000 Hz */
+	if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_3)
+	{
+		ccr_content = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_3);
+		__HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_3, ccr_content + pulse3_value);
+	}
+
+	/* TIM3_CH4 toggling with frequency = 4000 Hz */
+	if(htim->Channel == HAL_TIM_ACTIVE_CHANNEL_4)
+	{
+		ccr_content = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_4);
+		__HAL_TIM_SET_COMPARE(htim, TIM_CHANNEL_4, ccr_content + pulse4_value);
+	}
 }
 
 
