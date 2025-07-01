@@ -43,22 +43,22 @@ int main(void)
 
 	TIMER2_Init();
 
-	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_1) == HAL_OK )
+	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_1) != HAL_OK )
 	{
 		Error_Handler();
 	}
 
-	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_2) == HAL_OK )
+	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_2) != HAL_OK )
 	{
 		Error_Handler();
 	}
 
-	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_3) == HAL_OK )
+	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_3) != HAL_OK )
 	{
 		Error_Handler();
 	}
 
-	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_4) == HAL_OK )
+	if( HAL_TIM_OC_Start_IT(&htimer2, TIM_CHANNEL_4) != HAL_OK )
 	{
 		Error_Handler();
 	}
@@ -95,7 +95,7 @@ void SystemClockConfig_HSE(uint8_t clock_freq)
 			clk_init.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
 			clk_init.AHBCLKDivider = RCC_SYSCLK_DIV1;
 			clk_init.APB1CLKDivider = RCC_HCLK_DIV2;
-			clk_init.APB2CLKDivider = RCC_HCLK_DIV2;
+			clk_init.APB2CLKDivider = RCC_HCLK_DIV1;
 
 			FLatency = FLASH_ACR_LATENCY_1WS;
 			break;
@@ -138,12 +138,12 @@ void SystemClockConfig_HSE(uint8_t clock_freq)
 			return;
 	}
 
-	if( HAL_RCC_ClockConfig(&clk_init, FLatency) != HAL_OK )
+	if( HAL_RCC_OscConfig(&osc_init) != HAL_OK )
 	{
 		Error_Handler();
 	}
 
-	if( HAL_RCC_OscConfig(&osc_init) != HAL_OK )
+	if( HAL_RCC_ClockConfig(&clk_init, FLatency) != HAL_OK )
 	{
 		Error_Handler();
 	}
