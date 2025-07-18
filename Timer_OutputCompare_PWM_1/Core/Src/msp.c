@@ -33,6 +33,22 @@ void HAL_MspInit(void)
 
 
 /**
+  * @brief  Initializes the TIM PWM MSP.
+  * @param  htim TIM PWM handle
+  * @retval None
+  */
+void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_TIM_OC_MspInit could be implemented in the user file
+   */
+}
+
+
+/**
   * @brief  UART MSP Init.
   * @param  huart  Pointer to a UART_HandleTypeDef structure that contains
   *                the configuration information for the specified UART module.

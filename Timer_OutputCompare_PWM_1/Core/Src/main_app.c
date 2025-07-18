@@ -141,12 +141,20 @@ void GPIO_Init(void)
 
 void TIMER2_Init(void)
 {
-
+	htimer2.Instance = TIM2;
+	htimer2.Init.Period = 0xFFFFFFFF;
+	htimer2.Init.Prescaler = 1; // Count clock will be 25MHz
+	if(HAL_TIM_PWM_Init(&htimer2) != HAL_OK)
+	{
+		Error_Handler();
+	}
 }
 
 
 void UART2_Init(void)
 {
+	TIM_OC_InitTypeDef tim2PWM_Config;
+
 	huart2.Instance = USART2;
 	huart2.Init.BaudRate = 115200;
 	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
@@ -159,6 +167,10 @@ void UART2_Init(void)
 	{
 		Error_Handler();
 	}
+
+	tim2PWM_Config.OCMode = TIM_OCMODE_PWM1;
+	tim2PWM_Config.OCPolarity = TIM_OCPOLARITY_HIGH;
+	tim2PWM_Config.Pulse =
 }
 
 
