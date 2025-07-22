@@ -67,9 +67,9 @@ int main(void)
 			else
 				capture_difference = (0xFFFFFFFF - input_captures[0]) + input_captures[1];
 
-			timer2_cnt_freq = (HAL_RCC_GetPCLK1Freq() * 2) / (htimer2.Init.Prescaler + 1);
+			timer2_cnt_freq = (HAL_RCC_GetPCLK1Freq() * 2) / (htimer2.Init.Prescaler + 1); // timer count frequency
 
-			timer2_cnt_resolution = 1 / timer2_cnt_freq;
+			timer2_cnt_resolution = 1 / timer2_cnt_freq; // How many seconds per tick
 
 			user_signal_time_period = capture_difference * timer2_cnt_resolution;
 

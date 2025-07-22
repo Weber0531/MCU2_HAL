@@ -63,7 +63,7 @@ void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim)
 
 	// 2. Configure GPIOs to behave as timer2 channel 1, 2, 3, and 4
 	/*
-	 *  PA15 --> TIM2_CH1
+	 *  PA0  --> TIM2_CH1
 	 *  PA1  --> TIM2_CH2
 	 *  PB10 --> TIM2_CH3
 	 *  PB11 --> TIM2_CH4
@@ -73,7 +73,7 @@ void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim)
 	tim2OC_ch_gpios.Pull = GPIO_NOPULL;
 	tim2OC_ch_gpios.Speed = GPIO_SPEED_FREQ_LOW;
 
-	tim2OC_ch_gpios.Pin = GPIO_PIN_15 | GPIO_PIN_1;
+	tim2OC_ch_gpios.Pin = GPIO_PIN_0 | GPIO_PIN_1;
 	HAL_GPIO_Init(GPIOA, &tim2OC_ch_gpios);
 
 	tim2OC_ch_gpios.Pin = GPIO_PIN_10 | GPIO_PIN_11;
