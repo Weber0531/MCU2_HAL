@@ -28,23 +28,28 @@ UART_HandleTypeDef huart2;
 
 uint32_t input_captures[2] = {0};
 uint8_t count = 1;
-uint8_t is_capture_done = FALSE;
+volatile uint8_t is_capture_done = FALSE;
 
 int main(void)
 {
 	uint32_t capture_difference = 0;
 	double timer2_cnt_freq = 0;
-	double timer2_cnt_res = 0;
+	double timer2_cnt_resolution = 0;
 	double user_signal_time_period = 0;
 	double user_signal_freq = 0;
-	char usr_msg[100];
+	char msg[100];
 
 	HAL_Init();
+
 	// SystemClockConfig(SYS_CLOCK_FREQ_50_MHZ);
 	SystemClockConfig_HSE(SYS_CLOCK_FREQ_50_MHZ);
+
 	GPIO_Init();
+
 	UART2_Init();
+
 	TIMER2_Init();
+
 	TIMER6_Init();
 
 	LSE_Configuration();
@@ -60,18 +65,20 @@ int main(void)
 			if (input_captures[1] > input_captures[0])
 				capture_difference = input_captures[1] - input_captures[0];
 			else
-				capture_difference = (0xFFFFFFFF - input_captures[0])
-						+ input_captures[1];
+				capture_difference = (0xFFFFFFFF - input_captures[0]) + input_captures[1];
 
 			timer2_cnt_freq = (HAL_RCC_GetPCLK1Freq() * 2) / (htimer2.Init.Prescaler + 1);
-			timer2_cnt_res = 1 / timer2_cnt_freq;
-			user_signal_time_period = capture_difference * timer2_cnt_res;
+
+			timer2_cnt_resolution = 1 / timer2_cnt_freq;
+
+			user_signal_time_period = capture_difference * timer2_cnt_resolution;
+
 			user_signal_freq = 1 / user_signal_time_period;
 
-			sprintf(usr_msg, "Frequency of the signal applied = %f\r\n",
-					user_signal_freq);
+			sprintf(msg, "Frequency of the signal applied = %.2f Hz\r\n", user_signal_freq);
+			printf("%s", msg);
 
-			HAL_UART_Transmit(&huart2, (uint8_t*)usr_msg, strlen(usr_msg), HAL_MAX_DELAY);
+			// HAL_UART_Transmit(&huart2, (uint8_t*)usr_msg, strlen(usr_msg), HAL_MAX_DELAY);
 
 			is_capture_done = FALSE;
 		}
@@ -93,9 +100,8 @@ void SystemClockConfig(uint8_t clock_freq)
 
 	uint32_t FLatency = 0;
 
-	osc_init.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_LSE;
+	osc_init.OscillatorType = RCC_OSCILLATORTYPE_HSI;
 	osc_init.HSIState = RCC_HSI_ON;
-	osc_init.LSEState = RCC_LSE_ON;
 	osc_init.HSICalibrationValue = 16;
 	osc_init.PLL.PLLState = RCC_PLL_ON;
 	osc_init.PLL.PLLSource = RCC_PLLSOURCE_HSI;
@@ -188,9 +194,8 @@ void SystemClockConfig_HSE(uint8_t clock_freq)
 
 	uint32_t FLatency = 0;
 
-	osc_init.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_LSE | RCC_OSCILLATORTYPE_HSI;
+	osc_init.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI;
 	osc_init.HSEState = RCC_HSE_ON;
-	osc_init.LSEState = RCC_LSE_ON;
 	osc_init.HSIState = RCC_HSI_ON;
 	osc_init.HSICalibrationValue = 16;
 	osc_init.PLL.PLLState = RCC_PLL_ON;
@@ -350,7 +355,7 @@ void LSE_Configuration(void)
 	}
 #endif
 
-	HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_4);
+	HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_5);
 }
 
 

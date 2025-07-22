@@ -21,7 +21,7 @@ TIM_HandleTypeDef htimer6;
 int main(void)
 {
 	HAL_Init();
-	SystemClockConfig(SYS_CLOCK_FREQ_50_MHZ);
+	SystemClockConfig(SYS_CLOCK_FREQ_120_MHZ);
 	GPIO_Init();
 	TIMER6_Init();
 
@@ -143,8 +143,8 @@ void GPIO_Init(void)
 void TIMER6_Init(void)
 {
 	htimer6.Instance = TIM6;
-	htimer6.Init.Prescaler = 99;
-	htimer6.Init.Period = 50000 - 1;
+	htimer6.Init.Prescaler = 9;
+	htimer6.Init.Period = 24 - 1;
 	if( HAL_TIM_Base_Init(&htimer6) != HAL_OK )
 	{
 		Error_handler();
@@ -154,7 +154,7 @@ void TIMER6_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	//HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
+	HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12);
 }
 
 
