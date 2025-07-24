@@ -8,10 +8,6 @@
 
 #include "main_app.h"
 
-extern TIM_HandleTypeDef htimer3;
-extern UART_HandleTypeDef huart2;
-
-
 /**
   * @brief  Initialize the MSP.
   * @retval None
@@ -41,7 +37,7 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
 {
 	GPIO_InitTypeDef tim3OC_ch_gpios;
 
-	// 1. enable the peripheral clock for the timer2 peripheral
+	// 1. Enable the peripheral clock for the timer3 peripheral
 	__HAL_RCC_TIM3_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOC_CLK_ENABLE();
