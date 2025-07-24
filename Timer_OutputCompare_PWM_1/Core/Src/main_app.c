@@ -7,17 +7,18 @@
 
 
 /* Includes ------------------------------------------------------------------*/
+#include <string.h>
 #include "main_app.h"
 
 /* Private function prototypes -----------------------------------------------*/
 void GPIO_Init(void);
-void Error_handler(void);
-void TIMER2_Init(void);
+void Error_Handler(void);
+void TIMER3_Init(void);
 void UART2_Init(void);
 void SystemClock_Config_HSE(uint8_t clock_freq);
 
 /* Private variables ---------------------------------------------------------*/
-TIM_HandleTypeDef htimer2;
+TIM_HandleTypeDef htimer3;
 UART_HandleTypeDef huart2;
 
 int main(void)
@@ -28,9 +29,29 @@ int main(void)
 
 	GPIO_Init();
 
-	TIMER2_Init();
+	TIMER3_Init();
 
 	UART2_Init();
+
+	if( HAL_TIM_PWM_Start(&htimer3, TIM_CHANNEL_1) != HAL_OK )
+	{
+		Error_Handler();
+	}
+
+	if( HAL_TIM_PWM_Start(&htimer3, TIM_CHANNEL_2) != HAL_OK )
+	{
+		Error_Handler();
+	}
+
+	if( HAL_TIM_PWM_Start(&htimer3, TIM_CHANNEL_3) != HAL_OK )
+	{
+		Error_Handler();
+	}
+
+	if( HAL_TIM_PWM_Start(&htimer3, TIM_CHANNEL_4) != HAL_OK )
+	{
+		Error_Handler();
+	}
 
 	while(1);
 
@@ -124,7 +145,7 @@ void SystemClock_Config_HSE(uint8_t clock_freq)
 	HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
 	/* SysTick_IRQn interrupt configuration */
-	HAL_NVIC_GetPriority(SysTick_IRQn, 0, 0);
+	HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
 
@@ -139,12 +160,43 @@ void GPIO_Init(void)
 }
 
 
-void TIMER2_Init(void)
+void TIMER3_Init(void)
 {
-	htimer2.Instance = TIM2;
-	htimer2.Init.Period = 0xFFFFFFFF;
-	htimer2.Init.Prescaler = 1; // Count clock will be 25MHz
-	if(HAL_TIM_PWM_Init(&htimer2) != HAL_OK)
+	TIM_OC_InitTypeDef tim3PWM_Config;
+
+	htimer3.Instance = TIM3;
+	htimer3.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htimer3.Init.Period = 10000 - 1;
+	htimer3.Init.Prescaler = 4;
+	if( HAL_TIM_PWM_Init(&htimer3) != HAL_OK )
+	{
+		Error_Handler();
+	}
+
+	memset(&tim3PWM_Config, 0, sizeof(tim3PWM_Config));
+
+	tim3PWM_Config.OCMode = TIM_OCMODE_PWM1;
+	tim3PWM_Config.OCPolarity = TIM_OCPOLARITY_HIGH;
+	tim3PWM_Config.Pulse = (htimer3.Init.Period * 25) / 100;
+	if( HAL_TIM_PWM_ConfigChannel(&htimer3, &tim3PWM_Config, TIM_CHANNEL_1) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	tim3PWM_Config.Pulse = (htimer3.Init.Period * 45) / 100;
+	if( HAL_TIM_PWM_ConfigChannel(&htimer3, &tim3PWM_Config, TIM_CHANNEL_2) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	tim3PWM_Config.Pulse = (htimer3.Init.Period * 75) / 100;
+	if( HAL_TIM_PWM_ConfigChannel(&htimer3, &tim3PWM_Config, TIM_CHANNEL_3) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	tim3PWM_Config.Pulse = (htimer3.Init.Period * 90) / 100;
+	if( HAL_TIM_PWM_ConfigChannel(&htimer3, &tim3PWM_Config, TIM_CHANNEL_4) != HAL_OK)
 	{
 		Error_Handler();
 	}
@@ -153,8 +205,6 @@ void TIMER2_Init(void)
 
 void UART2_Init(void)
 {
-	TIM_OC_InitTypeDef tim2PWM_Config;
-
 	huart2.Instance = USART2;
 	huart2.Init.BaudRate = 115200;
 	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
@@ -167,14 +217,10 @@ void UART2_Init(void)
 	{
 		Error_Handler();
 	}
-
-	tim2PWM_Config.OCMode = TIM_OCMODE_PWM1;
-	tim2PWM_Config.OCPolarity = TIM_OCPOLARITY_HIGH;
-	tim2PWM_Config.Pulse =
 }
 
 
-void Error_handler(void)
+void Error_Handler(void)
 {
 	while(1);
 }

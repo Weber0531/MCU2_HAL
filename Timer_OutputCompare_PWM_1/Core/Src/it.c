@@ -7,7 +7,7 @@
 
 
 #include "main_app.h"
-extern TIM_HandleTypeDef htimer2;
+extern TIM_HandleTypeDef htimer3;
 
 /**
   * @brief This function handles System tick timer.
@@ -21,7 +21,7 @@ void SysTick_Handler(void)
 /**
   * @brief  This function handles TIM2 interrupt.
   */
-void TIM2_IRQHandler(void)
+void TIM3_IRQHandler(void)
 {
-	HAL_TIM_IRQHandler(&htimer2);
+	HAL_TIM_IRQHandler(&htimer3);
 }
