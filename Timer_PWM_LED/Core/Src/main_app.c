@@ -21,6 +21,8 @@ TIM_HandleTypeDef htimer3;
 
 int main(void)
 {
+	uint16_t brightness = 0;
+
 	HAL_Init();
 
 	SystemClock_Config_HSE(SYS_CLOCK_FREQ_50_MHZ);
@@ -29,7 +31,27 @@ int main(void)
 
 	TIMER3_Init();
 
-	while(1);
+	if( HAL_TIM_PWM_Start(&htimer3, TIM_CHANNEL_1) != HAL_OK )
+	{
+		Error_Handler();
+	}
+
+	while(1)
+	{
+		while(brightness < htimer3.Init.Period)
+		{
+			brightness+=20;
+			__HAL_TIM_SET_COMPARE(&htimer3, TIM_CHANNEL_1, brightness);
+			HAL_Delay(1);
+		}
+
+		while(brightness > 0)
+		{
+			brightness-=20;
+			__HAL_TIM_SET_COMPARE(&htimer3, TIM_CHANNEL_1, brightness);
+			HAL_Delay(1);
+		}
+	}
 
 	return 0;
 }
@@ -40,7 +62,7 @@ void SystemClock_Config_HSE(uint8_t clock_freq)
 	RCC_ClkInitTypeDef clk_init;
 	uint32_t FLatency = 0;
 
-	osc_init.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+	osc_init.OscillatorType = RCC_OSCILLATORTYPE_HSE;
 	osc_init.HSEState = RCC_HSE_ON;
 	osc_init.PLL.PLLState = RCC_PLL_ON;
 	osc_init.PLL.PLLSource = RCC_PLLSOURCE_HSE;
@@ -151,7 +173,7 @@ void TIMER3_Init(void)
 
 	tim3PWM_Config.OCMode = TIM_OCMODE_PWM1;
 	tim3PWM_Config.OCPolarity = TIM_OCPOLARITY_HIGH;
-	tim3PWM_Config.Pulse = (htimer3.Init.Period * 25) / 100;
+	tim3PWM_Config.Pulse = 0;
 	if( HAL_TIM_PWM_ConfigChannel(&htimer3, &tim3PWM_Config, TIM_CHANNEL_1) != HAL_OK )
 	{
 		Error_Handler();
